@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Feed</h2>
+
+{% for zeph in zephs %}
+<div class="zeph-card">
+    <div class="zeph-header">
+        <strong>{{ zeph.author.username }}</strong>
+        <span class="time">{{ zeph.created_at|timesince}} ago</span>
+    </div>
+    <p class="zeph-content">
+        {{zeph.content}}
+    </p>
+
+    {% if zeph.image %}
+    <img src="{{ zeph.image.url }}" class="zeph-image">
+    {% endif %}
+
+    <div class="zeph-actions">
+        <a href="{% url 'posts:detail' zeph.pk %}">View</a>
+
+        {% if zeph.author == request.user %}
+        <a href="{% url 'posts:edit' zeph.pk %}">Edit</a>
+        <a href="{% url 'posts:delete' zeph.pk %}">Delete</a>
+        {% endif %}
+    </div>
+
+</div>
+{% empty %}
+<p>No posts yet.</p>
+{% endfor %}
+{% endblock %}

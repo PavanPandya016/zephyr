@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #0b0f14;
+    color: #e5e7eb;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: #111827;
+}
+
+.logo {
+    color: #facc15;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.zeph-card {
+    background: #111827;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+}
+
+.zeph-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+.zeph-content {
+    margin: 0.8rem 0;
+}
+
+.zeph-actions a {
+    margin-right: 10px;
+    color: #facc15;
+    text-decoration: none;
+}

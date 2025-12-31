@@ -15,7 +15,7 @@ class ZephDetailView(LoginRequiredMixin, DetailView):
     model = Zeph
     template_name = "posts/detail.html"
 
-class ZephCreatView(LoginRequiredMixin, CreateView):
+class ZephCreateView(LoginRequiredMixin, CreateView):
     model = Zeph
     fields = ["content", "image", "parent"]
     template_name = "posts/create.html"
