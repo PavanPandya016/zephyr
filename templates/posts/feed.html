@@ -17,9 +17,24 @@
     <img src="{{ zeph.image.url }}" class="zeph-image">
     {% endif %}
 
+
     <div class="zeph-actions">
         <a href="{% url 'posts:detail' zeph.pk %}">View</a>
+        <div class="zeph-actions">
+            <form action="{% url 'engagements:like' zeph.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">
+                    ❤️ {{ zeph.likes.count }}
+                </button>
+            </form>
 
+            <form action="{% url 'engagements:bookmark' zeph.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit">
+                    🔖 {{ zeph.bookmarks.count }}
+                </button>
+            </form>
+        </div>
         {% if zeph.author == request.user %}
         <a href="{% url 'posts:edit' zeph.pk %}">Edit</a>
         <a href="{% url 'posts:delete' zeph.pk %}">Delete</a>

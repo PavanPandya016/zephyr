@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 from .models import Zeph
 
@@ -41,3 +44,18 @@ class ZephDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return super().get_object().author == self.request.user
     
+
+def reply_zeph(request, zeph_id):
+    parent = get_object_or_404(Zeph, id=zeph_id)
+    content = request.POST.get("content")
+
+    if content:
+        Zeph.objects.create(
+            author=request.user,
+            content=content,
+            parent=parent
+        )
+
+    return redirect("post:detail", pk=parent.id)
+
+

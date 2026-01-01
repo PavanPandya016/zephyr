@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="zeph-card">
+    <strong>{{ object.author.username }}</strong>
+    <p>{{ object.content }}</p>
+</div>
+
+<h4>Replies</h4>
+
+{% for reply in object.replies.all %}
+<div class="zeph-card" style="margin-left:20px;">
+    <strong>{{ reply.author.username }}</strong>
+    <p>{{ reply.content }}</p>
+</div>
+{% empty %}
+<p>No replies yet.</p>
+{% endfor %}
+
+<form method="post" action="{% url 'posts:reply' object.id %}">
+    {% csrf_token %}
+    <textarea name="content" rows="3" required></textarea>
+    <button type="submit">Reply</button>
+</form>
+
+{% endblock %}
