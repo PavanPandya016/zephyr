@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="profile-banner">
+    {% if profile_user.profile.banner %}
+    <img src="{{ profile_user.profile.banner.url }}" alt="Banner">
+    {% endif %}
+</div>
+
+<div class="profile-header">
+    <div class="avatar">
+        {% if profile_user.profile.avatar %}
+        <img src="{{ profile_user.profile.avatar.url }}" alt="Avatar">
+        {% endif %}
+    </div>
+
+    <div class="profile-info">
+        <h2>
+            {{ profile_user.username }}
+            {% if profile_user.is_verified %}
+            <span class="verified">✔</span>
+            {% endif %}
+        </h2>
+
+        <p>{{ profile_user.profile.bio }}</p>
+
+        <p>
+            {{ followers_count }} followers · {{ following_count }} following
+        </p>
+    </div>
+</div>
+
+{% endblock %}

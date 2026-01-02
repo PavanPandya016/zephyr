@@ -1,0 +1,19 @@
+<form method="post" action="{% url 'accounts:follow' user.id %}">
+    {% csrf_token %}
+    <button type="submit">
+        {% if user in request.user.following.all %}
+        Unfollow
+        {% else %}
+        Follow
+        {% endif %}
+    </button>
+</form>
+
+<!-- is_verified  -->
+
+<strong>
+    {{ zeph.author.username }}
+    {% if zeph.author.is_verified %}
+    <span class="verified">✔</span>
+    {% endif %}
+</strong>

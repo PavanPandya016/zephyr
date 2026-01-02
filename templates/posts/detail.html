@@ -2,16 +2,46 @@
 {% block content %}
 
 <div class="zeph-card">
-    <strong>{{ object.author.username }}</strong>
+    <strong>
+        {{ object.author.username }}
+        {% if object.author.is_verified %}
+        <span class="verified">✔</span>
+        {% endif %}
+    </strong>
+
     <p>{{ object.content }}</p>
+
+    {% if object.image %}
+    <img src="{{ object.image.url }}" style="max-width:100%;">
+    {% endif %}
+
+    <small>{{ object.created_at|timesince }} ago</small>
+
+    {% if zeph.image %}
+    <img src="{{ zeph.image.url }}" alt="Zeph image" class="zeph-image">
+    {% endif %}
+
+    <div class="zeph-actions">
+        <span>❤️ {{ object.likes.count }}</span>
+        <span>🔖 {{ object.bookmarks.count }}</span>
+        <span>👀 {{ object.views.count }}</span>
+    </div>
+
+    {% if object.author == request.user %}
+    <a href="{% url 'posts:edit' object.id %}">Edit</a>
+    <a href="{% url 'posts:delete' object.id %}">Delete</a>
+    {% endif %}
 </div>
 
-<h4>Replies</h4>
+<hr>
+
+<h3>Replies</h3>
 
 {% for reply in object.replies.all %}
 <div class="zeph-card" style="margin-left:20px;">
     <strong>{{ reply.author.username }}</strong>
     <p>{{ reply.content }}</p>
+    <small>{{ reply.created_at|timesince }} ago</small>
 </div>
 {% empty %}
 <p>No replies yet.</p>

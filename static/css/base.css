@@ -46,3 +46,32 @@ body {
     color: #facc15;
     text-decoration: none;
 }
+
+.verified {
+    color: #facc15;
+    font-size: 0.8rem;
+    margin-left: 4px;
+}
+
+.profile-banner img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.profile-header {
+    display: flex;
+    gap: 20px;
+    margin-top: -60px;
+    align-items: flex-end;
+}
+
+.avatar img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #0b0f14;
+    object-fit: cover;
+    background: #111827;
+}
