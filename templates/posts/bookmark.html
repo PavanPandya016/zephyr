@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 style="margin:6px 0 12px 0;">Bookmarks</h2>
+
+<div class="feed-container">
+    {% for zeph in zephs %}
+    <div class="zeph-card">
+
+        <div class="avatar">
+            {% if zeph.author.profile.avatar %}
+            <img src="{{ zeph.author.profile.avatar.url }}" alt="{{ zeph.author.username }}"
+                onerror="this.style.display='none'">
+            {% endif %}
+        </div>
+
+        <div class="zeph-body">
+
+            <div class="zeph-meta">
+                <div class="meta-left">
+                    <div class="username">
+                        {{ zeph.author.get_full_name|default:zeph.author.username }}
+                    </div>
+                    <div class="handle">@{{ zeph.author.username }}</div>
+                </div>
+                <div class="timestamp">{{ zeph.created_at|timesince }} ago</div>
+            </div>
+
+            <!-- CLICK → POST DETAIL (NOT BOOKMARK URL) -->
+            <a href="{% url 'posts:detail' zeph.pk %}" style="text-decoration:none;color:inherit;display:block;">
+
+                <div class="zeph-text">
+                    {{ zeph.content|linebreaksbr }}
+                </div>
+
+                {% if zeph.image %}
+                <div class="zeph-media">
+                    <img src="{{ zeph.image.url }}" class="zeph-image">
+                </div>
+                {% endif %}
+
+            </a>
+
+        </div>
+    </div>
+
+    {% empty %}
+    <p>You haven’t bookmarked any posts yet.</p>
+    {% endfor %}
+
+</div>
+{% endblock %}
