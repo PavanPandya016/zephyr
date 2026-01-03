@@ -16,6 +16,9 @@ class ZephListView(LoginRequiredMixin, ListView):
     context_object_name = "zephs"
     paginate_by = 20
 
+    def get_queryset(self):
+        return Zeph.objects.filter(parent__isnull=True)
+
 class ZephDetailView(LoginRequiredMixin, DetailView):
     model = Zeph
     template_name = "posts/detail.html"

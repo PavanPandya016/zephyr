@@ -5,5 +5,5 @@ app_name = "engagements"
 
 urlpatterns = [
         path("like/<int:zeph_id>/", toggle_like, name="like"),
-        path("bookmark/<int:zepg_id>", toggle_bookmark, name="bookmark")
+        path("bookmark/<int:zeph_id>", toggle_bookmark, name="bookmark")
 ]

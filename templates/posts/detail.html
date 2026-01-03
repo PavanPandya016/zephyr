@@ -2,55 +2,81 @@
 {% block content %}
 
 <div class="zeph-card">
-    <strong>
-        {{ object.author.username }}
-        {% if object.author.is_verified %}
-        <span class="verified">✔</span>
+    <div class="avatar">
+        {% if object.author.profile.avatar %}
+        <img src="{{ object.author.profile.avatar.url }}" alt="{{ object.author.username }}"
+            onerror="this.style.display='none'">
         {% endif %}
-    </strong>
-
-    <p>{{ object.content }}</p>
-
-    {% if object.image %}
-    <img src="{{ object.image.url }}" style="max-width:100%;">
-    {% endif %}
-
-    <small>{{ object.created_at|timesince }} ago</small>
-
-    {% if zeph.image %}
-    <img src="{{ zeph.image.url }}" alt="Zeph image" class="zeph-image">
-    {% endif %}
-
-    <div class="zeph-actions">
-        <span>❤️ {{ object.likes.count }}</span>
-        <span>🔖 {{ object.bookmarks.count }}</span>
-        <span>👀 {{ object.views.count }}</span>
     </div>
 
-    {% if object.author == request.user %}
-    <a href="{% url 'posts:edit' object.id %}">Edit</a>
-    <a href="{% url 'posts:delete' object.id %}">Delete</a>
-    {% endif %}
+    <div class="zeph-body">
+        <div class="zeph-meta">
+            <div class="meta-left">
+                <div class="username">{{ object.author.get_full_name|default:object.author.username }}</div>
+                <div class="handle">@{{ object.author.username }}</div>
+                {% if object.author.is_verified %}
+                <span class="verified">✔</span>
+                {% endif %}
+            </div>
+            <div class="timestamp">{{ object.created_at|timesince }} ago</div>
+        </div>
+
+        <div class="zeph-text">{{ object.content|linebreaksbr }}</div>
+
+        {% if object.image %}
+        <div class="zeph-media">
+            <img src="{{ object.image.url }}" alt="media">
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <span class="action">❤️ <span class="count">{{ object.likes.count }}</span></span>
+            <span class="action">🔖 <span class="count">{{ object.bookmarks.count }}</span></span>
+            <span class="action">👀 <span class="count">{{ object.views.count }}</span></span>
+        </div>
+
+        {% if object.author == request.user %}
+        <div style="margin-top:8px;">
+            <a class="action" href="{% url 'posts:edit' object.id %}">Edit</a>
+            <a class="action" href="{% url 'posts:delete' object.id %}">Delete</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
-<hr>
+<hr class="divider">
 
-<h3>Replies</h3>
+<h3 style="margin-top:12px;">Replies</h3>
 
 {% for reply in object.replies.all %}
-<div class="zeph-card" style="margin-left:20px;">
-    <strong>{{ reply.author.username }}</strong>
-    <p>{{ reply.content }}</p>
-    <small>{{ reply.created_at|timesince }} ago</small>
+<div class="zeph-card" style="margin-left:0;padding-left:12px;">
+    <div class="avatar">
+        {% if reply.author.profile.avatar %}
+        <img src="{{ reply.author.profile.avatar.url }}" alt="{{ reply.author.username }}"
+            onerror="this.style.display='none'">
+        {% endif %}
+    </div>
+    <div class="zeph-body">
+        <div class="zeph-meta">
+            <div class="meta-left">
+                <div class="username">{{ reply.author.get_full_name|default:reply.author.username }}</div>
+                <div class="handle">@{{ reply.author.username }}</div>
+            </div>
+            <div class="timestamp">{{ reply.created_at|timesince }} ago</div>
+        </div>
+        <div class="zeph-text">{{ reply.content|linebreaksbr }}</div>
+    </div>
 </div>
 {% empty %}
 <p>No replies yet.</p>
 {% endfor %}
 
-<form method="post" action="{% url 'posts:reply' object.id %}">
+<form method="post" action="{% url 'posts:reply' object.id %}" style="margin-top:12px;">
     {% csrf_token %}
-    <textarea name="content" rows="3" required></textarea>
-    <button type="submit">Reply</button>
+    <div class="form-field">
+        <textarea name="content" rows="3" required class="input"></textarea>
+        <button class="btn-create" type="submit">Reply</button>
+    </div>
 </form>
 
 {% endblock %}

@@ -1,48 +1,119 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Feed</h2>
+<h2 style="margin:6px 0 12px 0;">Home</h2>
 
-{% for zeph in zephs %}
-<div class="zeph-card">
-    <div class="zeph-header">
-        <strong>{{ zeph.author.username }}</strong>
-        <span class="time">{{ zeph.created_at|timesince}} ago</span>
-    </div>
-    <p class="zeph-content">
-        {{zeph.content}}
-    </p>
+<div class="feed-container">
 
-    {% if zeph.image %}
-    <img src="{{ zeph.image.url }}" class="zeph-image">
-    {% endif %}
+    {% for zeph in zephs %}
+    <div class="zeph-card">
 
-
-    <div class="zeph-actions">
-        <a href="{% url 'posts:detail' zeph.pk %}">View</a>
-        <div class="zeph-actions">
-            <form action="{% url 'engagements:like' zeph.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit">
-                    ❤️ {{ zeph.likes.count }}
-                </button>
-            </form>
-
-            <form action="{% url 'engagements:bookmark' zeph.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit">
-                    🔖 {{ zeph.bookmarks.count }}
-                </button>
-            </form>
+        <!-- Avatar -->
+        <div class="avatar">
+            {% if zeph.author.profile.avatar %}
+            <img src="{{ zeph.author.profile.avatar.url }}" alt="{{ zeph.author.username }}"
+                onerror="this.style.display='none'">
+            {% endif %}
         </div>
-        {% if zeph.author == request.user %}
-        <a href="{% url 'posts:edit' zeph.pk %}">Edit</a>
-        <a href="{% url 'posts:delete' zeph.pk %}">Delete</a>
-        {% endif %}
+
+        <!-- Body -->
+        <div class="zeph-body">
+
+            <!-- Meta -->
+            <div class="zeph-meta">
+                <div class="meta-left">
+                    <div class="username">
+                        {{ zeph.author.get_full_name|default:zeph.author.username }}
+                    </div>
+                    <div class="handle">@{{ zeph.author.username }}</div>
+                </div>
+                <div class="timestamp">{{ zeph.created_at|timesince }} ago</div>
+            </div>
+
+            <!-- Content -->
+            <a href="{% url 'posts:detail' zeph.pk %}" style="text-decoration:none;color:inherit;display:block;">
+                <div class="zeph-text">{{ zeph.content|linebreaksbr }}</div>
+
+                {% if zeph.image %}
+                <div class="zeph-media">
+                    <img src="{{ zeph.image.url }}" class="zeph-image" alt="media">
+                </div>
+                {% endif %}
+            </a>
+
+            <!-- Actions -->
+            <div class="actions">
+
+                <!-- LIKE (Optimistic UI) -->
+                <form class="like-form" data-url="{% url 'engagements:like' zeph.id %}" method="post"
+                    style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="action like-btn">
+                        ❤️ <span class="count">{{ zeph.likes.count }}</span>
+                    </button>
+                </form>
+
+                <!-- BOOKMARK (normal POST) -->
+                <form action="{% url 'engagements:bookmark' zeph.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="action" type="submit">
+                        🔖 <span class="count">{{ zeph.bookmarks.count }}</span>
+                    </button>
+                </form>
+
+                {% if zeph.author == request.user %}
+                <a class="action" href="{% url 'posts:edit' zeph.pk %}">Edit</a>
+                <a class="action" href="{% url 'posts:delete' zeph.pk %}">Delete</a>
+                {% endif %}
+            </div>
+
+        </div>
     </div>
+    {% empty %}
+    <p>No posts yet.</p>
+    {% endfor %}
 
 </div>
-{% empty %}
-<p>No posts yet.</p>
-{% endfor %}
+
+<!-- 🔥 OPTIMISTIC UI SCRIPT (INLINE, SAFE) -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        document.querySelectorAll(".like-form").forEach(form => {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const button = form.querySelector(".like-btn");
+                const countSpan = button.querySelector(".count");
+                const url = form.dataset.url;
+                const csrf = form.querySelector("[name=csrfmiddlewaretoken]").value;
+
+                let count = parseInt(countSpan.innerText);
+                const liked = button.classList.toggle("liked");
+
+                // Optimistic update
+                countSpan.innerText = liked ? count + 1 : count - 1;
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrf
+                        }
+                    });
+
+                    if (!res.ok) throw new Error("Failed");
+
+                } catch (err) {
+                    // rollback on failure
+                    button.classList.toggle("liked");
+                    countSpan.innerText = count;
+                    alert("Something went wrong. Try again.");
+                }
+            });
+        });
+
+    });
+</script>
+
 {% endblock %}
