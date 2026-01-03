@@ -295,6 +295,80 @@ body {
     font-size: 13px;
 }
 
+/* Feed specific tweaks */
+.page-title {
+    margin: 6px 0 12px 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.zeph-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* Like button styling and interactions */
+.like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    transition: transform var(--transition), color var(--transition), background var(--transition);
+}
+
+.like-btn .heart {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 1;
+    transition: transform 160ms ease, color 160ms ease;
+    color: inherit;
+}
+
+.like-btn.liked,
+.like-btn.liked .heart {
+    color: var(--accent);
+}
+
+.like-btn.liked .heart {
+    transform: scale(1.12);
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.zeph-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+    .zeph-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+    }
+
+    .page-title {
+        font-size: 18px;
+    }
+}
+
 /* Profile header — banner and overlapping avatar */
 .profile-banner {
     width: 100%;
@@ -418,11 +492,11 @@ textarea:focus {
     }
 
     .sidebar {
-        display: none
+        display: none;
     }
 
     .right {
-        display: none
+        display: none;
     }
 
     .feed-column {
@@ -463,13 +537,26 @@ textarea:focus {
         box-shadow: none;
         transition: transform var(--transition);
         z-index: 70;
+        font-size: 32px;
     }
 
     .fab-create:hover {
         background: var(--accent-hover);
-        transform: translateY(-3px)
+        transform: translateY(-3px);
+    }
+
+    /* 👇 Extra adjustment for small screens (≤768px) */
+    @media (max-width: 768px) {
+        .fab-create {
+            bottom: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            font-size: 28px;
+        }
     }
 }
+
 
 /* Accessibility / Utility */
 .sr-only {
@@ -507,4 +594,40 @@ button,
 .action,
 .nav-link {
     transition: color var(--transition), background var(--transition), transform var(--transition);
+}
+
+.fab-create {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: #1d9bf0;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 32px;
+    font-weight: 300;
+    box-shadow: 0 4px 12px rgba(29, 155, 240, 0.4);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    line-height: 1;
+}
+
+.fab-create:hover {
+    background: #1a8cd8;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(29, 155, 240, 0.5);
+}
+
+.fab-create:active {
+    transform: scale(0.95);
+}
+
+/* Alternative with feather icon instead of + */
+.fab-create.with-icon {
+    font-size: 24px;
 }
