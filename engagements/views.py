@@ -36,6 +36,7 @@ def toggle_bookmark(request, zeph_id):
 class BookmarkListView(LoginRequiredMixin, ListView):
     model = Bookmark
     template_name = "posts/bookmark.html"
+    context_object_name = "zephs"
 
     def get_queryset(self):
         return Zeph.objects.filter(

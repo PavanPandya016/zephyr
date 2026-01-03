@@ -7,6 +7,7 @@
     {% for zeph in zephs %}
     <div class="zeph-card">
 
+        <!-- Avatar -->
         <div class="avatar">
             {% if zeph.author.profile.avatar %}
             <img src="{{ zeph.author.profile.avatar.url }}" alt="{{ zeph.author.username }}"
@@ -14,8 +15,10 @@
             {% endif %}
         </div>
 
+        <!-- Body -->
         <div class="zeph-body">
 
+            <!-- Meta -->
             <div class="zeph-meta">
                 <div class="meta-left">
                     <div class="username">
@@ -26,27 +29,190 @@
                 <div class="timestamp">{{ zeph.created_at|timesince }} ago</div>
             </div>
 
-            <!-- CLICK → POST DETAIL (NOT BOOKMARK URL) -->
-            <a href="{% url 'posts:detail' zeph.pk %}" style="text-decoration:none;color:inherit;display:block;">
-
-                <div class="zeph-text">
-                    {{ zeph.content|linebreaksbr }}
-                </div>
+            <!-- Content -->
+            <a href="{% url 'posts:detail' zeph.pk %}" class="zeph-link">
+                <div class="zeph-text">{{ zeph.content|linebreaksbr }}</div>
 
                 {% if zeph.image %}
                 <div class="zeph-media">
-                    <img src="{{ zeph.image.url }}" class="zeph-image">
+                    <img src="{{ zeph.image.url }}" class="zeph-image" alt="media">
                 </div>
                 {% endif %}
-
             </a>
+
+            <!-- Actions -->
+            <div class="actions">
+
+                <!-- LIKE -->
+                <button class="action like-btn" data-url="{% url 'engagements:like' zeph.id %}">
+                    <span class="heart">❤</span>
+                    <span class="count">{{ zeph.likes.count }}</span>
+                </button>
+
+                <!-- BOOKMARK -->
+                <button class="action bookmark-btn" data-url="{% url 'engagements:bookmark' zeph.id %}">
+                    <span class="bookmark-icon">🔖</span>
+                    <span class="count">{{ zeph.bookmarks.count }}</span>
+                </button>
+
+                {% if zeph.author == request.user %}
+                <a class="action" href="{% url 'posts:edit' zeph.pk %}">Edit</a>
+                <a class="action" href="{% url 'posts:delete' zeph.pk %}">Delete</a>
+                {% endif %}
+            </div>
 
         </div>
     </div>
-
     {% empty %}
-    <p>You haven’t bookmarked any posts yet.</p>
+    <p>No Book Mark yet.</p>
     {% endfor %}
 
 </div>
+
+
+<style>
+    .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .action {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+        color: #8899a6;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .action:hover {
+        background: rgba(29, 155, 240, 0.1);
+    }
+
+    .like-btn:hover {
+        background: rgba(249, 24, 128, 0.1);
+        color: #f91880;
+    }
+
+    .like-btn.liked {
+        color: #f91880;
+    }
+
+    .like-btn.liked .heart {
+        animation: heartBeat 0.3s ease;
+    }
+
+    .bookmark-btn:hover {
+        background: rgba(29, 155, 240, 0.1);
+        color: #1d9bf0;
+    }
+
+    .bookmark-btn.bookmarked {
+        color: #1d9bf0;
+    }
+
+    .heart,
+    .bookmark-icon {
+        font-size: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+    }
+
+    .action:hover .heart,
+    .action:hover .bookmark-icon {
+        transform: scale(1.1);
+    }
+
+    .count {
+        font-weight: 400;
+        min-width: 20px;
+        text-align: left;
+    }
+
+    @keyframes heartBeat {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        25% {
+            transform: scale(1.2);
+        }
+
+        50% {
+            transform: scale(0.95);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie) {
+                document.cookie.split(";").forEach(c => {
+                    const cookie = c.trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                    }
+                });
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie("csrftoken");
+
+        document.querySelectorAll(".bookmark-btn").forEach(button => {
+            button.addEventListener("click", async (e) => {
+                e.preventDefault();
+
+                const card = button.closest(".zeph-card");
+                const countSpan = button.querySelector(".count");
+                const url = button.dataset.url;
+
+                let count = parseInt(countSpan.innerText) || 0;
+                const bookmarked = button.classList.toggle("bookmarked");
+
+                // optimistic update
+                countSpan.innerText = bookmarked ? count + 1 : Math.max(0, count - 1);
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "X-CSRFToken": csrftoken }
+                    });
+
+                    if (!res.ok) throw new Error("Failed");
+
+                    // 🔥 X-like behavior: remove from bookmarks list
+                    if (!bookmarked) {
+                        card.style.transition = "opacity 0.2s ease";
+                        card.style.opacity = "0";
+                        setTimeout(() => card.remove(), 200);
+                    }
+
+                } catch (err) {
+                    // rollback
+                    button.classList.toggle("bookmarked");
+                    countSpan.innerText = count;
+                    console.error(err);
+                }
+            });
+        });
+
+    });
+</script>
+
 {% endblock %}
