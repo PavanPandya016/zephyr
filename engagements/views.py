@@ -39,7 +39,29 @@ class BookmarkListView(LoginRequiredMixin, ListView):
     context_object_name = "zephs"
 
     def get_queryset(self):
-        return Zeph.objects.filter(
-            bookmarks__user=self.request.user,
-            parent__isnull=True
-        ).select_related("author").order_by("-created_at")
+        
+        bookmarked_zephs = Zeph.objects.filter(
+            bookmarks__user=self.request.user
+        ).select_related(
+            'author', 'author__profile'
+        ).prefetch_related('likes', 'bookmarks').order_by('-created_at')
+        
+        return bookmarked_zephs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        
+        user_liked_ids = set(
+            Like.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+        )
+        user_bookmarked_ids = set(
+            Bookmark.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+        )
+        
+        
+        for zeph in context['zephs']:
+            zeph.is_liked_by_user = zeph.id in user_liked_ids
+            zeph.is_bookmarked_by_user = zeph.id in user_bookmarked_ids
+        
+        return context

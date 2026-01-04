@@ -1,41 +1,77 @@
+# views.py - Updated ZephListView
+
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
 
 from .models import Zeph
-from engagements.models import ZephView
+from engagements.models import ZephView, Like, Bookmark
 from engagements.utils import get_client_ip
+
 
 class ZephListView(LoginRequiredMixin, ListView):
     model = Zeph
     template_name = "posts/feed.html"
     context_object_name = "zephs"
-    paginate_by = 20
 
     def get_queryset(self):
-        return Zeph.objects.filter(parent__isnull=True)
+        return Zeph.objects.filter(parent__isnull=True).select_related(
+            'author', 'author__profile'
+        ).prefetch_related('likes', 'bookmarks').order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get sets of zeph IDs that the current user has liked/bookmarked
+        user_liked_ids = set(
+            Like.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+        )
+        user_bookmarked_ids = set(
+            Bookmark.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+        )
+        
+        # Attach the liked/bookmarked status to each zeph
+        for zeph in context['zephs']:
+            zeph.is_liked_by_user = zeph.id in user_liked_ids
+            zeph.is_bookmarked_by_user = zeph.id in user_bookmarked_ids
+        
+        return context
+
 
 class ZephDetailView(LoginRequiredMixin, DetailView):
     model = Zeph
     template_name = "posts/detail.html"
 
     def get(self, request, *args, **kwargs):
-        response =  super().get(request, *args, **kwargs)
+        response = super().get(request, *args, **kwargs)
 
         zeph = self.get_object()
         ip = get_client_ip(request)
 
         ZephView.objects.get_or_create(
-            zeph = zeph,
-            user = request.user,
-            ip_address = ip
+            zeph=zeph,
+            user=request.user,
+            ip_address=ip
         )
 
         return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        zeph = self.get_object()
+        
+        # Add liked/bookmarked status for detail view too
+        context['is_liked_by_user'] = Like.objects.filter(
+            user=self.request.user, zeph=zeph
+        ).exists()
+        context['is_bookmarked_by_user'] = Bookmark.objects.filter(
+            user=self.request.user, zeph=zeph
+        ).exists()
+        
+        return context
 
 
 class ZephCreateView(LoginRequiredMixin, CreateView):
@@ -48,6 +84,7 @@ class ZephCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
     
+
 class ZephUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Zeph
     fields = ["content", "image"]
@@ -57,13 +94,14 @@ class ZephUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.get_object().author == self.request.user
     
+
 class ZephDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Zeph
     template_name = "posts/delete.html"
     success_url = reverse_lazy("posts:feed")
 
     def test_func(self):
-        return super().get_object().author == self.request.user
+        return self.get_object().author == self.request.user
     
 
 def reply_zeph(request, zeph_id):
@@ -78,5 +116,3 @@ def reply_zeph(request, zeph_id):
         )
 
     return redirect("posts:detail", pk=parent.id)
-
-

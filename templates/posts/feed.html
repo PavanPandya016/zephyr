@@ -9,7 +9,7 @@
         {% for zeph in zephs %}
         <div class="zeph-card">
 
-            <!-- Avatar -->
+
             <div class="avatar">
                 {% if zeph.author.profile.avatar %}
                 <img src="{{ zeph.author.profile.avatar.url }}" alt="{{ zeph.author.username }}"
@@ -17,10 +17,10 @@
                 {% endif %}
             </div>
 
-            <!-- Body -->
+
             <div class="zeph-body">
 
-                <!-- Meta -->
+
                 <div class="zeph-meta">
                     <div class="meta-left">
                         <div class="username">
@@ -31,7 +31,7 @@
                     <div class="timestamp">{{ zeph.created_at|timesince }} ago</div>
                 </div>
 
-                <!-- Content -->
+
                 <a href="{% url 'posts:detail' zeph.pk %}" class="zeph-link">
                     <div class="zeph-text">{{ zeph.content|linebreaksbr }}</div>
 
@@ -42,17 +42,20 @@
                     {% endif %}
                 </a>
 
-                <!-- Actions -->
+
                 <div class="actions">
 
-                    <!-- LIKE -->
-                    <button class="action like-btn" data-url="{% url 'engagements:like' zeph.id %}">
+                    <button class="action like-btn {% if zeph.is_liked_by_user %}liked{% endif %}"
+                        data-url="{% url 'engagements:like' zeph.id %}"
+                        aria-pressed="{% if zeph.is_liked_by_user %}true{% else %}false{% endif %}">
                         <span class="heart">❤</span>
                         <span class="count">{{ zeph.likes.count }}</span>
                     </button>
 
-                    <!-- BOOKMARK -->
-                    <button class="action bookmark-btn" data-url="{% url 'engagements:bookmark' zeph.id %}">
+
+                    <button class="action bookmark-btn {% if zeph.is_bookmarked_by_user %}bookmarked{% endif %}"
+                        data-url="{% url 'engagements:bookmark' zeph.id %}"
+                        aria-pressed="{% if zeph.is_bookmarked_by_user %}true{% else %}false{% endif %}">
                         <span class="bookmark-icon">🔖</span>
                         <span class="count">{{ zeph.bookmarks.count }}</span>
                     </button>
@@ -161,7 +164,6 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
 
-        // Get CSRF token from cookie
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -179,70 +181,56 @@
 
         const csrftoken = getCookie('csrftoken');
 
-        // Like button handler with optimistic UI
         document.querySelectorAll(".like-btn").forEach(button => {
             button.addEventListener("click", async (e) => {
                 e.preventDefault();
 
                 const countSpan = button.querySelector(".count");
                 const url = button.dataset.url;
+                const count = parseInt(countSpan.innerText) || 0;
+                const wasLiked = button.classList.contains("liked");
 
-                let count = parseInt(countSpan.innerText) || 0;
-                const liked = button.classList.toggle("liked");
-                button.setAttribute('aria-pressed', liked ? 'true' : 'false');
-
-                // Optimistic update
-                countSpan.innerText = liked ? count + 1 : Math.max(0, count - 1);
+                button.classList.toggle("liked");
+                button.setAttribute('aria-pressed', !wasLiked ? 'true' : 'false');
+                countSpan.innerText = wasLiked ? Math.max(0, count - 1) : count + 1;
 
                 try {
                     const res = await fetch(url, {
                         method: "POST",
-                        headers: {
-                            "X-CSRFToken": csrftoken
-                        }
+                        headers: { "X-CSRFToken": csrftoken }
                     });
-
                     if (!res.ok) throw new Error("Failed");
-
                 } catch (err) {
-                    // rollback on failure
                     button.classList.toggle("liked");
-                    button.setAttribute('aria-pressed', button.classList.contains('liked') ? 'true' : 'false');
+                    button.setAttribute('aria-pressed', wasLiked ? 'true' : 'false');
                     countSpan.innerText = count;
                     console.error(err);
                 }
             });
         });
 
-        // Bookmark button handler with optimistic UI
         document.querySelectorAll(".bookmark-btn").forEach(button => {
             button.addEventListener("click", async (e) => {
                 e.preventDefault();
 
                 const countSpan = button.querySelector(".count");
                 const url = button.dataset.url;
+                const count = parseInt(countSpan.innerText) || 0;
+                const wasBookmarked = button.classList.contains("bookmarked");
 
-                let count = parseInt(countSpan.innerText) || 0;
-                const bookmarked = button.classList.toggle("bookmarked");
-                button.setAttribute('aria-pressed', bookmarked ? 'true' : 'false');
-
-                // Optimistic update
-                countSpan.innerText = bookmarked ? count + 1 : Math.max(0, count - 1);
+                button.classList.toggle("bookmarked");
+                button.setAttribute('aria-pressed', !wasBookmarked ? 'true' : 'false');
+                countSpan.innerText = wasBookmarked ? Math.max(0, count - 1) : count + 1;
 
                 try {
                     const res = await fetch(url, {
                         method: "POST",
-                        headers: {
-                            "X-CSRFToken": csrftoken
-                        }
+                        headers: { "X-CSRFToken": csrftoken }
                     });
-
                     if (!res.ok) throw new Error("Failed");
-
                 } catch (err) {
-                    // rollback on failure
                     button.classList.toggle("bookmarked");
-                    button.setAttribute('aria-pressed', button.classList.contains('bookmarked') ? 'true' : 'false');
+                    button.setAttribute('aria-pressed', wasBookmarked ? 'true' : 'false');
                     countSpan.innerText = count;
                     console.error(err);
                 }

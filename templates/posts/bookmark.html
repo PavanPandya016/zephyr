@@ -44,13 +44,17 @@
             <div class="actions">
 
                 <!-- LIKE -->
-                <button class="action like-btn" data-url="{% url 'engagements:like' zeph.id %}">
+                <button class="action like-btn {% if zeph.is_liked_by_user %}liked{% endif %}"
+                    data-url="{% url 'engagements:like' zeph.id %}"
+                    aria-pressed="{% if zeph.is_liked_by_user %}true{% else %}false{% endif %}">
                     <span class="heart">❤</span>
                     <span class="count">{{ zeph.likes.count }}</span>
                 </button>
 
                 <!-- BOOKMARK -->
-                <button class="action bookmark-btn" data-url="{% url 'engagements:bookmark' zeph.id %}">
+                <button class="action bookmark-btn {% if zeph.is_bookmarked_by_user %}bookmarked{% endif %}"
+                    data-url="{% url 'engagements:bookmark' zeph.id %}"
+                    aria-pressed="{% if zeph.is_bookmarked_by_user %}true{% else %}false{% endif %}">
                     <span class="bookmark-icon">🔖</span>
                     <span class="count">{{ zeph.bookmarks.count }}</span>
                 </button>
@@ -174,6 +178,36 @@
 
         const csrftoken = getCookie("csrftoken");
 
+        // Like button handler
+        document.querySelectorAll(".like-btn").forEach(button => {
+            button.addEventListener("click", async (e) => {
+                e.preventDefault();
+
+                const countSpan = button.querySelector(".count");
+                const url = button.dataset.url;
+                const count = parseInt(countSpan.innerText) || 0;
+                const wasLiked = button.classList.contains("liked");
+
+                button.classList.toggle("liked");
+                button.setAttribute('aria-pressed', !wasLiked ? 'true' : 'false');
+                countSpan.innerText = wasLiked ? Math.max(0, count - 1) : count + 1;
+
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "X-CSRFToken": csrftoken }
+                    });
+                    if (!res.ok) throw new Error("Failed");
+                } catch (err) {
+                    button.classList.toggle("liked");
+                    button.setAttribute('aria-pressed', wasLiked ? 'true' : 'false');
+                    countSpan.innerText = count;
+                    console.error(err);
+                }
+            });
+        });
+
+        // Bookmark button handler
         document.querySelectorAll(".bookmark-btn").forEach(button => {
             button.addEventListener("click", async (e) => {
                 e.preventDefault();
@@ -181,12 +215,12 @@
                 const card = button.closest(".zeph-card");
                 const countSpan = button.querySelector(".count");
                 const url = button.dataset.url;
+                const count = parseInt(countSpan.innerText) || 0;
+                const wasBookmarked = button.classList.contains("bookmarked");
 
-                let count = parseInt(countSpan.innerText) || 0;
-                const bookmarked = button.classList.toggle("bookmarked");
-
-                // optimistic update
-                countSpan.innerText = bookmarked ? count + 1 : Math.max(0, count - 1);
+                button.classList.toggle("bookmarked");
+                button.setAttribute('aria-pressed', !wasBookmarked ? 'true' : 'false');
+                countSpan.innerText = wasBookmarked ? Math.max(0, count - 1) : count + 1;
 
                 try {
                     const res = await fetch(url, {
@@ -196,16 +230,16 @@
 
                     if (!res.ok) throw new Error("Failed");
 
-                    // 🔥 X-like behavior: remove from bookmarks list
-                    if (!bookmarked) {
+                    // X-like behavior: remove from bookmarks list when unbookmarked
+                    if (!wasBookmarked === false) {  // If we just unbookmarked
                         card.style.transition = "opacity 0.2s ease";
                         card.style.opacity = "0";
                         setTimeout(() => card.remove(), 200);
                     }
 
                 } catch (err) {
-                    // rollback
                     button.classList.toggle("bookmarked");
+                    button.setAttribute('aria-pressed', wasBookmarked ? 'true' : 'false');
                     countSpan.innerText = count;
                     console.error(err);
                 }
