@@ -1,4 +1,4 @@
-# views.py - Updated ZephListView
+
 
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -25,7 +25,7 @@ class ZephListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get sets of zeph IDs that the current user has liked/bookmarked
+        
         user_liked_ids = set(
             Like.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
         )
@@ -33,7 +33,7 @@ class ZephListView(LoginRequiredMixin, ListView):
             Bookmark.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
         )
         
-        # Attach the liked/bookmarked status to each zeph
+        
         for zeph in context['zephs']:
             zeph.is_liked_by_user = zeph.id in user_liked_ids
             zeph.is_bookmarked_by_user = zeph.id in user_bookmarked_ids
@@ -63,7 +63,7 @@ class ZephDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         zeph = self.get_object()
         
-        # Add liked/bookmarked status for detail view too
+        
         context['is_liked_by_user'] = Like.objects.filter(
             user=self.request.user, zeph=zeph
         ).exists()

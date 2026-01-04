@@ -5,22 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zephyr</title>
+
     {% load static %}
+
+
+    <link rel="icon" href="{% static 'img/icon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'img/icon.png' %}" sizes="192x192">
+    <link rel="icon" href="{% static 'img/icon.ico' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'img/icon.png' %}" sizes="180x180">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
+
 
 <body>
 
     <div class="app">
         <div class="layout">
             <aside class="sidebar">
-                <div class="logo"><a class="nav-link" href="{% url 'posts:feed' %}">Zephyr</a></div>
+                <div class="logo">
+                    <a class="nav-link" href="{% url 'posts:feed' %}">
+                        <img src="{% static 'img/final.png' %}" alt="" class="logo-img"
+                            style="width:120px;height:auto;display:block;">
+                    </a>
+                </div>
                 <nav class="nav">
                     <a class="nav-link" href="{% url 'posts:feed' %}">Home</a>
                     {% if request.user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'posts:create' %}">Create</a>
                     <a class="nav-link" href="{% url 'accounts:profile' request.user.username %}">Profile</a>
                     <a class="nav-link" href="{% url 'accounts:password_change' %}">Password</a>
+                    <a class="nav-link" href="{% url 'bookmarks' %}"> Bookmark</a>
                     <form method="post" action="{% url 'accounts:logout' %}" style="display:block;">
                         {% csrf_token %}
                         <button type="submit" class="nav-link"
@@ -48,8 +61,8 @@
                         <img src="{{ request.user.profile.avatar.url }}" alt="avatar">
                         {% endif %}
                     </div>
-                    <div style="flex:1;min-width:0;">
-                        <a href="{% url 'accounts:profile' request.user.username %}">
+                    <div style="flex:1; min-width:0;">
+                        <a href="{% url 'accounts:profile' request.user.username %}" class="profile-link">
                             <div class="username">{{ request.user.get_full_name|default:request.user.username }}</div>
                             <div class="small muted">@{{ request.user.username }}</div>
                         </a>
@@ -58,7 +71,9 @@
                 {% endif %}
             </aside>
         </div>
+        {% if request.user.is_authenticated %}
         <a class="fab-create" href="{% url 'posts:create' %}" aria-label="Create">+</a>
+        {% endif %}
     </div>
 
 </body>

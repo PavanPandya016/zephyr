@@ -596,6 +596,35 @@ button,
     transition: color var(--transition), background var(--transition), transform var(--transition);
 }
 
+.profile-link {
+    display: block;
+    text-decoration: none;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.profile-link:hover {
+    opacity: 0.8;
+}
+
+.profile-link .username {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: inherit;
+}
+
+.profile-link .small {
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-link .muted {
+    color: #8899a6;
+}
+
 .fab-create {
     position: fixed;
     bottom: 24px;
