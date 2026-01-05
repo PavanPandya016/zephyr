@@ -6,6 +6,7 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 
 from .models import Zeph
 from engagements.models import ZephView, Like, Bookmark
@@ -18,9 +19,14 @@ class ZephListView(LoginRequiredMixin, ListView):
     context_object_name = "zephs"
 
     def get_queryset(self):
-        return Zeph.objects.filter(parent__isnull=True).select_related(
-            'author', 'author__profile'
-        ).prefetch_related('likes', 'bookmarks').order_by('-created_at')
+        return (
+            Zeph.objects
+            .filter(parent__isnull=True)
+            .select_related("author", "author__profile")
+            .prefetch_related("likes", "bookmarks")
+            .annotate(comment_count=Count("replies"))
+            .order_by("-created_at")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -103,10 +109,9 @@ class ZephDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return self.get_object().author == self.request.user
     
-
 def reply_zeph(request, zeph_id):
-    parent = get_object_or_404(Zeph, id=zeph_id)
-    content = request.POST.get("content")
+    parent = get_object_or_404(Zeph, id=zeph_id, parent__isnull=True)
+    content = request.POST.get("content", "").strip()
 
     if content:
         Zeph.objects.create(

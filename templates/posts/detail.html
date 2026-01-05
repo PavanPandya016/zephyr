@@ -48,6 +48,14 @@
 
 <h3 style="margin-top:12px;">Replies</h3>
 
+<form method="post" action="{% url 'posts:reply' object.id %}" style="margin-top:12px;">
+    {% csrf_token %}
+    <div class="form-field">
+        <textarea name="content" rows="3" required class="input"></textarea>
+        <button class="btn-create" type="submit">Reply</button>
+    </div>
+</form>
+
 {% for reply in object.replies.all %}
 <div class="zeph-card" style="margin-left:0;padding-left:12px;">
     <div class="avatar">
@@ -71,12 +79,6 @@
 <p>No replies yet.</p>
 {% endfor %}
 
-<form method="post" action="{% url 'posts:reply' object.id %}" style="margin-top:12px;">
-    {% csrf_token %}
-    <div class="form-field">
-        <textarea name="content" rows="3" required class="input"></textarea>
-        <button class="btn-create" type="submit">Reply</button>
-    </div>
-</form>
+
 
 {% endblock %}
