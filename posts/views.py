@@ -24,26 +24,29 @@ class ZephListView(LoginRequiredMixin, ListView):
             .filter(parent__isnull=True)
             .select_related("author", "author__profile")
             .prefetch_related("likes", "bookmarks")
-            .annotate(comment_count=Count("replies"))
+            .annotate(
+                comment_count=Count("replies", distinct=True),
+                view_count=Count("views", distinct=True),
+            )
             .order_by("-created_at")
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        
+
         user_liked_ids = set(
-            Like.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+            Like.objects.filter(user=self.request.user)
+            .values_list("zeph_id", flat=True)
         )
         user_bookmarked_ids = set(
-            Bookmark.objects.filter(user=self.request.user).values_list('zeph_id', flat=True)
+            Bookmark.objects.filter(user=self.request.user)
+            .values_list("zeph_id", flat=True)
         )
-        
-        
-        for zeph in context['zephs']:
+
+        for zeph in context["zephs"]:
             zeph.is_liked_by_user = zeph.id in user_liked_ids
             zeph.is_bookmarked_by_user = zeph.id in user_bookmarked_ids
-        
+
         return context
 
 

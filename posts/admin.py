@@ -1,8 +1,6 @@
 from django.contrib import admin
 from .models import Zeph
-from engagements.models import Bookmark
-
-
+from engagements.models import Bookmark, ZephView
 
 class CommentInline(admin.TabularInline):
     model = Zeph
@@ -18,11 +16,17 @@ class CommentInline(admin.TabularInline):
         return qs.filter(parent__isnull=False)
 
 
-
 class BookmarkInline(admin.TabularInline):
     model = Bookmark
     extra = 0
     readonly_fields = ("user", "created_at")
+
+
+class ViewInline(admin.TabularInline):
+    model = ZephView
+    extra = 0
+    readonly_fields = ("user", "ip_address", "created_at")
+    fields = ("user", "ip_address", "created_at")
 
 
 @admin.register(Zeph)
@@ -33,9 +37,8 @@ class ZephAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
 
-    inlines = [CommentInline, BookmarkInline]
+    inlines = [CommentInline, BookmarkInline, ViewInline]
 
-    
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.filter(parent__isnull=True)
@@ -44,3 +47,4 @@ class ZephAdmin(admin.ModelAdmin):
         return obj.content[:40] + "..." if len(obj.content) > 40 else obj.content
 
     short_content.short_description = "Content"
+

@@ -58,6 +58,14 @@
                     <span class="count">{{ zeph.bookmarks.count }}</span>
                 </button>
 
+                <span class="action">
+                    💬 <span class="count">{{ zeph.comment_count }}</span>
+                </span>
+                <span class="action view-count">
+                    <img src="{% static 'icon/eye.svg' %}" class="action-icon" alt="views">
+                    <span class="count">{{ zeph.view_count }}</span>
+                </span>
+
                 {% if zeph.author == request.user %}
                 <a class="action" href="{% url 'posts:edit' zeph.pk %}">Edit</a>
                 <a class="action" href="{% url 'posts:delete' zeph.pk %}">Delete</a>
