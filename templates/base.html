@@ -31,7 +31,7 @@
                 <nav class="nav">
                     <a class="nav-link" href="{% url 'posts:feed' %}">Home</a>
                     {% if request.user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'accounts:profile' request.user.username %}">Profile</a>
+                    <a class="nav-link" href="{% url 'accounts:profile' request.user.profile.username %}">Profile</a>
                     <a class="nav-link" href="{% url 'accounts:password_change' %}">Password</a>
                     <a class="nav-link" href="{% url 'bookmarks' %}"> Bookmark</a>
                     <form method="post" action="{% url 'accounts:logout' %}" style="display:block;">
@@ -62,9 +62,9 @@
                         {% endif %}
                     </div>
                     <div style="flex:1; min-width:0;">
-                        <a href="{% url 'accounts:profile' request.user.username %}" class="profile-link">
+                        <a href="{% url 'accounts:profile' request.user.profile.username %}" class="profile-link">
                             <div class="username">{{ request.user.get_full_name|default:request.user.username }}</div>
-                            <div class="small muted">@{{ request.user.username }}</div>
+                            <div class="small muted">@{{ request.user.profile.username }}</div>
                         </a>
                     </div>
                 </div>
