@@ -9,7 +9,6 @@
     {% load static %}
 
 
-    <link rel="icon" href="{% static 'img/icon.svg' %}" type="image/svg+xml">
     <link rel="icon" href="{% static 'img/icon.png' %}" sizes="192x192">
     <link rel="icon" href="{% static 'img/icon.ico' %}" type="image/x-icon">
     <link rel="apple-touch-icon" href="{% static 'img/icon.png' %}" sizes="180x180">
@@ -24,8 +23,7 @@
             <aside class="sidebar">
                 <div class="logo">
                     <a class="nav-link" href="{% url 'posts:feed' %}">
-                        <img src="{% static 'img/final.png' %}" alt="" class="logo-img"
-                            style="width:120px;height:auto;display:block;">
+                        <img src="{% static 'img/final.png' %}" alt="Zephyr Logo" class="logo-img">
                     </a>
                 </div>
                 <nav class="nav">
@@ -33,11 +31,10 @@
                     {% if request.user.is_authenticated %}
                     <a class="nav-link" href="{% url 'accounts:profile' request.user.profile.username %}">Profile</a>
                     <a class="nav-link" href="{% url 'accounts:password_change' %}">Password</a>
-                    <a class="nav-link" href="{% url 'bookmarks' %}"> Bookmark</a>
-                    <form method="post" action="{% url 'accounts:logout' %}" style="display:block;">
+                    <a class="nav-link" href="{% url 'bookmarks' %}">Bookmark</a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
                         {% csrf_token %}
-                        <button type="submit" class="nav-link"
-                            style="background:transparent;border:none;text-align:left;">Logout</button>
+                        <button type="submit" class="nav-link logout-btn">Logout</button>
                     </form>
                     {% else %}
                     <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
@@ -55,13 +52,13 @@
 
             <aside class="right">
                 {% if request.user.is_authenticated %}
-                <div class="zeph-card" style="display:flex;align-items:center;gap:12px;">
+                <div class="zeph-card user-card-inline">
                     <div class="avatar">
                         {% if request.user.profile.avatar %}
                         <img src="{{ request.user.profile.avatar.url }}" alt="avatar">
                         {% endif %}
                     </div>
-                    <div style="flex:1; min-width:0;">
+                    <div class="user-card-content">
                         <a href="{% url 'accounts:profile' request.user.profile.username %}" class="profile-link">
                             <div class="username">{{ request.user.get_full_name|default:request.user.username }}</div>
                             <div class="small muted">@{{ request.user.profile.username }}</div>
