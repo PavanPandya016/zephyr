@@ -433,28 +433,6 @@ img:not(.avatar img):not(.zeph-image):not(.logo-img) {
     fill: var(--color-like);
 }
 
-/* ==========================================================================
-     Form Classes
-     ========================================================================== */
-
-.form-container {
-    padding: var(--space-5);
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-bg);
-}
-
-.form-field {
-    margin-bottom: var(--space-4);
-}
-
-.form-label {
-    display: block;
-    margin-bottom: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-text);
-}
-
 .input {
     width: 100%;
     padding: var(--space-3) var(--space-4);
@@ -845,17 +823,6 @@ img:not(.avatar img):not(.zeph-image):not(.logo-img) {
     min-width: 0;
 }
 
-/* Logout Form */
-.logout-form {
-    margin: 0;
-    padding: 0;
-}
-
-.logout-btn {
-    width: 100%;
-    text-align: left;
-}
-
 /* Verified Badge */
 .verified {
     display: inline-flex;
@@ -922,10 +889,6 @@ img:not(.avatar img):not(.zeph-image):not(.logo-img) {
     }
 
     .zeph-card {
-        padding: var(--space-4);
-    }
-
-    .form-container {
         padding: var(--space-4);
     }
 }

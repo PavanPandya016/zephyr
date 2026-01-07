@@ -22,9 +22,7 @@ class Profile(models.Model):
     username = models.CharField(
         max_length=15,
         unique=True,
-        db_index=True,
-        null=True,       # TEMP
-        blank=True,      # TEMP
+        db_index=True, 
         validators=[
             RegexValidator(
                 regex=r'^[a-zA-Z0-9_]+$',

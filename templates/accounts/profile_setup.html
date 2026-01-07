@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile Setup{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white shadow rounded-lg">
+    <h1 class="text-2xl font-bold mb-6 text-center">
+        Complete Your Profile
+    </h1>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 text-red-700 p-3 rounded">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <!-- Avatar -->
+        <div>
+            <label class="block text-sm font-medium mb-1">
+                Profile Picture
+            </label>
+            {{ form.avatar }}
+            {% if form.avatar.errors %}
+            <p class="text-red-600 text-sm">{{ form.avatar.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Banner -->
+        <div>
+            <label class="block text-sm font-medium mb-1">
+                Banner Image
+            </label>
+            {{ form.banner }}
+            {% if form.banner.errors %}
+            <p class="text-red-600 text-sm">{{ form.banner.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Bio -->
+        <div>
+            <label class="block text-sm font-medium mb-1">
+                Bio
+            </label>
+            {{ form.bio }}
+            {% if form.bio.errors %}
+            <p class="text-red-600 text-sm">{{ form.bio.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-between items-center">
+            <a href="{% url 'posts:feed' %}" class="text-sm text-gray-600 hover:underline">
+                Skip for now
+            </a>
+
+            <button type="submit" class="py-2 px-6 bg-green-600 text-white rounded hover:bg-green-700">
+                Save Profile
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

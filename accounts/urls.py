@@ -1,7 +1,8 @@
+# accounts/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
-from .views import toggle_follow, ProfileView, SignUpView
+from .views import toggle_follow, ProfileView, SignUpView, ProfileSetupView
  
 app_name = "accounts"
 
@@ -13,6 +14,7 @@ urlpatterns = [
         success_url="/"
     ), name="password_change"),
     path("signup/", SignUpView.as_view(), name="signup"),
-    path("folllow/<int:user_id>/", toggle_follow, name="follow"),
+    path("profile_setup/", ProfileSetupView.as_view(), name="profile_setup"),
+    path("follow/<int:user_id>/", toggle_follow, name="follow"),
     path("<str:username>/", ProfileView.as_view(), name="profile"),
 ]
